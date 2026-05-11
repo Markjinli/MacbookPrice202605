@@ -170,11 +170,11 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 
 const AIR_BASE = {
   '13-inch': {
-    '10-8':  { reg: 8499,  edu: 7699,  mem: '16GB', storage: '512GB', power: '35W' },
-    '10-10': { reg: 9249,  edu: 8374,  mem: '16GB', storage: '512GB', power: '35W' },
+    '10-8':  { reg: 8499,  edu: 7699,  mem: '16GB', storage: '512GB', power: '40W' },
+    '10-10': { reg: 9249,  edu: 8374,  mem: '16GB', storage: '512GB', power: '40W' },
   },
   '15-inch': {
-    '10-10': { reg: 9999,  edu: 9199,  mem: '16GB', storage: '512GB', power: '35W' },
+    '10-10': { reg: 9999,  edu: 9199,  mem: '16GB', storage: '512GB', power: '40W' },
   }
 };
 
@@ -278,12 +278,12 @@ const STORAGE_UPGRADE = {
 
 const POWER_UPGRADE = {
   'Air': {
-    base: '35W',
-    steps: ['35W','40W','70W'],
+    base: '40W',
+    steps: ['40W','35W','70W'],
     upgrade: [
-      { from: '35W', to: '40W', reg: 150, edu: 150 },
-      { from: '40W', to: '70W', reg: 300, edu: 300 },
-      { from: '35W', to: '70W', reg: 450, edu: 450 },
+      { from: '40W', to: '35W', reg: 120, edu: 120 },
+      { from: '40W', to: '70W', reg: 120, edu: 120 },
+      { from: '35W', to: '70W', reg: 0, edu: 0 },
     ]
   },
   'Pro-14': {
@@ -326,8 +326,8 @@ const AIR_STORAGE_OPTS = [
 ];
 
 const AIR_POWER_OPTS = [
+  { value: '40W', label: '40W 动态（默认）' },
   { value: '35W', label: '35W 双USB-C' },
-  { value: '40W', label: '40W 动态' },
   { value: '70W', label: '70W USB-C' },
 ];
 
@@ -376,7 +376,7 @@ const PRO_POWER_OPTS = [
 
 // ==================== STATE ====================
 
-let airState = { size: '13-inch', chip: '10-10', memory: '16GB', storage: '512GB', power: '35W' };
+let airState = { size: '13-inch', chip: '10-10', memory: '16GB', storage: '512GB', power: '40W' };
 let proState = { size: '14-inch', display: 'Standard', chip: 'M5Pro-18-20', memory: '24GB', storage: '2TB', power: '70W' };
 
 // ==================== HELPERS ====================
