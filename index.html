@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MacBook 银色价格对比（普通 vs 教育）</title>
+<title>MacBook 价格对比（普通 vs 教育 vs 国补）</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; background: #f5f5f7; color: #1d1d1f; padding: 20px; }
@@ -37,13 +37,15 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 .option-btn.selected.pro { border-color: #ff6b00; background: #fff5f0; color: #ff6b00; box-shadow: 0 0 0 2px rgba(255,107,0,0.15); }
 .option-btn:disabled { border-color: #e5e5ea; background: #f5f5f7; color: #c7c7cc; cursor: not-allowed; }
 
-.price-display { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.price-display { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .price-box { padding: 20px; border-radius: 12px; text-align: center; }
 .price-box.regular { background: #f5f5f7; border: 1px solid #e5e5ea; }
 .price-box.edu { background: #f0f7ff; border: 1px solid #cce0ff; }
+.price-box.subsidy { background: #f0fff4; border: 1px solid #cce8d0; }
 .price-label { font-size: 13px; color: #86868b; margin-bottom: 4px; font-weight: 500; }
 .price-amount { font-size: 40px; font-weight: 700; letter-spacing: -1.5px; }
 .price-box.edu .price-amount { color: #0071e3; }
+.price-box.subsidy .price-amount { color: #1a8a3f; }
 .price-monthly { font-size: 13px; color: #86868b; margin-top: 6px; }
 .price-diff { font-size: 15px; font-weight: 500; margin-top: 12px; text-align: center; }
 .price-diff.cheaper { color: #34c759; }
@@ -52,7 +54,7 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 .breakdown table { width: 100%; border-collapse: collapse; }
 .breakdown td { padding: 4px 0; }
 .breakdown td:first-child { text-align: left; }
-.breakdown td:nth-child(2), .breakdown td:nth-child(3) { text-align: right; font-family: "SF Mono", "Consolas", monospace; font-size: 13px; font-weight: 500; }
+.breakdown td:nth-child(2), .breakdown td:nth-child(3), .breakdown td:nth-child(4) { text-align: right; font-family: "SF Mono", "Consolas", monospace; font-size: 13px; font-weight: 500; }
 .breakdown tr.total { font-weight: 600; color: #1d1d1f; border-top: 1px solid #d2d2d7; }
 .breakdown tr.total td { padding-top: 8px; }
 
@@ -61,12 +63,12 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 </head>
 <body>
 <div class="container">
-<h1>MacBook 银色 · 价格对比</h1>
-<p class="subtitle">Apple Store 普通 vs 教育优惠 · 点击选项即可查看价格</p>
+<h1>MacBook 价格对比</h1>
+<p class="subtitle">Apple Store 普通 · 教育优惠 · 国补到手价 · 点击选项即可查看价格</p>
 
 <!-- ==================== AIR ==================== -->
 <div class="card">
-  <div class="card-title"><span class="dot air"></span> MacBook Air（银色）</div>
+  <div class="card-title"><span class="dot air"></span> MacBook Air</div>
 
   <div class="option-group">
     <div class="option-label">尺寸</div>
@@ -100,6 +102,11 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
       <div class="price-amount" id="air-price-edu">¥--</div>
       <div class="price-monthly" id="air-monthly-edu"></div>
     </div>
+    <div class="price-box subsidy">
+      <div class="price-label">国补到手价</div>
+      <div class="price-amount" id="air-price-subsidy">¥--</div>
+      <div class="price-monthly" id="air-monthly-subsidy"></div>
+    </div>
   </div>
   <div class="price-diff" id="air-price-diff"></div>
   <div class="breakdown" id="air-breakdown"></div>
@@ -107,7 +114,7 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 
 <!-- ==================== PRO ==================== -->
 <div class="card">
-  <div class="card-title"><span class="dot pro"></span> MacBook Pro（银色）</div>
+  <div class="card-title"><span class="dot pro"></span> MacBook Pro</div>
 
   <div class="option-group">
     <div class="option-label">尺寸</div>
@@ -145,12 +152,17 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
       <div class="price-amount" id="pro-price-edu">¥--</div>
       <div class="price-monthly" id="pro-monthly-edu"></div>
     </div>
+    <div class="price-box subsidy">
+      <div class="price-label">国补到手价</div>
+      <div class="price-amount" id="pro-price-subsidy">¥--</div>
+      <div class="price-monthly" id="pro-monthly-subsidy"></div>
+    </div>
   </div>
   <div class="price-diff" id="pro-price-diff"></div>
   <div class="breakdown" id="pro-breakdown"></div>
 </div>
 
-<p class="note">价格单位：人民币（RMB）· 仅银色 · 数据来源：apple.com.cn<br>部分升级价格为推算值，最终以 Apple Store 显示为准</p>
+<p class="note">价格单位：人民币（RMB）· 数据来源：apple.com.cn<br>部分升级价格为推算值，最终以 Apple Store 显示为准<br>国补规则：教育价 &lt; ¥10,000 打85折 · 教育价 ≥ ¥10,000 减 ¥1,500</p>
 </div>
 
 <script>
@@ -371,6 +383,7 @@ let proState = { size: '14-inch', display: 'Standard', chip: 'M5Pro-18-20', memo
 
 function fmt(n) { return '¥' + n.toLocaleString('zh-CN'); }
 function monthly(n) { return '或 ¥' + Math.round(n/24).toLocaleString('zh-CN') + '/月 (24期 0%费率)'; }
+function subsidy(eduPrice) { return eduPrice < 10000 ? Math.round(eduPrice * 0.85) : eduPrice - 1500; }
 
 function getMemCost(chipKey, from, to, store) {
   if (from === to) return 0;
@@ -473,24 +486,27 @@ function calcAir() {
 
   const tReg = base.reg + mReg + sReg + pReg;
   const tEdu = base.edu + mEdu + sEdu + pEdu;
+  const tSubsidy = subsidy(tEdu);
 
   document.getElementById('air-price-reg').textContent = fmt(tReg);
   document.getElementById('air-price-edu').textContent = fmt(tEdu);
+  document.getElementById('air-price-subsidy').textContent = fmt(tSubsidy);
   document.getElementById('air-monthly-reg').textContent = monthly(tReg);
   document.getElementById('air-monthly-edu').textContent = monthly(tEdu);
+  document.getElementById('air-monthly-subsidy').textContent = monthly(tSubsidy);
 
   const diff = tReg - tEdu;
   const dEl = document.getElementById('air-price-diff');
-  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）`;
+  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）· 国补再省 <strong>${fmt(tEdu - tSubsidy)}</strong>`;
   dEl.className = 'price-diff cheaper';
 
   const bd = document.getElementById('air-breakdown');
   let h = '<table>';
-  h += `<tr><td>基础价格 (${size} · ${airState.chip === '10-8' ? 'M5 8核GPU' : 'M5 10核GPU'})</td><td>${fmt(base.reg)}</td><td>${fmt(base.edu)}</td></tr>`;
-  if (mReg) h += `<tr><td>内存 ${base.mem} → ${memory}</td><td>+${fmt(mReg)}</td><td>+${fmt(mEdu)}</td></tr>`;
-  if (sReg) h += `<tr><td>硬盘 ${base.storage} → ${storage}</td><td>+${fmt(sReg)}</td><td>+${fmt(sEdu)}</td></tr>`;
-  if (pReg) h += `<tr><td>电源 ${base.power} → ${power}</td><td>+${fmt(pReg)}</td><td>+${fmt(pEdu)}</td></tr>`;
-  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td></tr>`;
+  h += `<tr><td>基础价格 (${size} · ${airState.chip === '10-8' ? 'M5 8核GPU' : 'M5 10核GPU'})</td><td>${fmt(base.reg)}</td><td>${fmt(base.edu)}</td><td></td></tr>`;
+  if (mReg) h += `<tr><td>内存 ${base.mem} → ${memory}</td><td>+${fmt(mReg)}</td><td>+${fmt(mEdu)}</td><td></td></tr>`;
+  if (sReg) h += `<tr><td>硬盘 ${base.storage} → ${storage}</td><td>+${fmt(sReg)}</td><td>+${fmt(sEdu)}</td><td></td></tr>`;
+  if (pReg) h += `<tr><td>电源 ${base.power} → ${power}</td><td>+${fmt(pReg)}</td><td>+${fmt(pEdu)}</td><td></td></tr>`;
+  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td><td>${fmt(tSubsidy)}</td></tr>`;
   h += '</table>';
   bd.innerHTML = h;
 }
@@ -592,24 +608,27 @@ function calcPro() {
 
   const tReg = startReg + mReg + sReg + pReg;
   const tEdu = startEdu + mEdu + sEdu + pEdu;
+  const tSubsidy = subsidy(tEdu);
 
   document.getElementById('pro-price-reg').textContent = fmt(tReg);
   document.getElementById('pro-price-edu').textContent = fmt(tEdu);
+  document.getElementById('pro-price-subsidy').textContent = fmt(tSubsidy);
   document.getElementById('pro-monthly-reg').textContent = monthly(tReg);
   document.getElementById('pro-monthly-edu').textContent = monthly(tEdu);
+  document.getElementById('pro-monthly-subsidy').textContent = monthly(tSubsidy);
 
   const diff = tReg - tEdu;
   const dEl = document.getElementById('pro-price-diff');
-  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）`;
+  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）· 国补再省 <strong>${fmt(tEdu - tSubsidy)}</strong>`;
   dEl.className = 'price-diff cheaper';
 
   const bd = document.getElementById('pro-breakdown');
   let h = '<table>';
-  h += `<tr><td>基础价格 (14" 标准 ${chip.replace(/-/g,' ')})</td><td>${fmt(base14std.reg)}</td><td>${fmt(base14std.edu)}</td></tr>`;
+  h += `<tr><td>基础价格 (14" 标准 ${chip.replace(/-/g,' ')})</td><td>${fmt(base14std.reg)}</td><td>${fmt(base14std.edu)}</td><td></td></tr>`;
   for (const it of items) {
-    h += `<tr><td>${it.label}</td><td>+${fmt(it.reg)}</td><td>+${fmt(it.edu)}</td></tr>`;
+    h += `<tr><td>${it.label}</td><td>+${fmt(it.reg)}</td><td>+${fmt(it.edu)}</td><td></td></tr>`;
   }
-  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td></tr>`;
+  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td><td>${fmt(tSubsidy)}</td></tr>`;
   h += '</table>';
   bd.innerHTML = h;
 }
