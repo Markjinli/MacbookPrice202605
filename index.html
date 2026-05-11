@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacBook 银色价格对比（普通 vs 教育）</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; background: #f5f5f7; color: #1d1d1f; padding: 20px; }
+.container { max-width: 900px; margin: 0 auto; }
+h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+.subtitle { text-align: center; color: #86868b; margin-bottom: 30px; font-size: 14px; }
+
+.card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.card-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.card-title .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.air { background: #0071e3; }
+.dot.pro { background: #ff6b00; }
+
+.option-group { margin-bottom: 16px; }
+.option-label { font-size: 13px; color: #86868b; margin-bottom: 8px; font-weight: 500; }
+.option-buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+.option-btn {
+  padding: 12px 20px;
+  border: 2px solid #d2d2d7;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.option-btn:hover { border-color: #86868b; background: #f9f9fb; }
+.option-btn.selected { border-color: #0071e3; background: #e8f4fd; color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.15); }
+.option-btn.selected.pro { border-color: #ff6b00; background: #fff5f0; color: #ff6b00; box-shadow: 0 0 0 2px rgba(255,107,0,0.15); }
+.option-btn:disabled { border-color: #e5e5ea; background: #f5f5f7; color: #c7c7cc; cursor: not-allowed; }
+
+.price-display { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.price-box { padding: 20px; border-radius: 12px; text-align: center; }
+.price-box.regular { background: #f5f5f7; border: 1px solid #e5e5ea; }
+.price-box.edu { background: #f0f7ff; border: 1px solid #cce0ff; }
+.price-label { font-size: 13px; color: #86868b; margin-bottom: 4px; font-weight: 500; }
+.price-amount { font-size: 40px; font-weight: 700; letter-spacing: -1.5px; }
+.price-box.edu .price-amount { color: #0071e3; }
+.price-monthly { font-size: 13px; color: #86868b; margin-top: 6px; }
+.price-diff { font-size: 15px; font-weight: 500; margin-top: 12px; text-align: center; }
+.price-diff.cheaper { color: #34c759; }
+
+.breakdown { margin-top: 16px; font-size: 13px; color: #86868b; background: #fbfbfd; border-radius: 10px; padding: 12px 16px; }
+.breakdown table { width: 100%; border-collapse: collapse; }
+.breakdown td { padding: 4px 0; }
+.breakdown td:first-child { text-align: left; }
+.breakdown td:nth-child(2), .breakdown td:nth-child(3) { text-align: right; font-family: "SF Mono", "Consolas", monospace; font-size: 13px; font-weight: 500; }
+.breakdown tr.total { font-weight: 600; color: #1d1d1f; border-top: 1px solid #d2d2d7; }
+.breakdown tr.total td { padding-top: 8px; }
+
+.note { font-size: 12px; color: #86868b; margin-top: 24px; text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>MacBook 银色 · 价格对比</h1>
+<p class="subtitle">Apple Store 普通 vs 教育优惠 · 点击选项即可查看价格</p>
+
+<!-- ==================== AIR ==================== -->
+<div class="card">
+  <div class="card-title"><span class="dot air"></span> MacBook Air（银色）</div>
+
+  <div class="option-group">
+    <div class="option-label">尺寸</div>
+    <div class="option-buttons" id="air-size-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">芯片</div>
+    <div class="option-buttons" id="air-chip-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">内存</div>
+    <div class="option-buttons" id="air-memory-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">硬盘</div>
+    <div class="option-buttons" id="air-storage-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">电源适配器</div>
+    <div class="option-buttons" id="air-power-btns"></div>
+  </div>
+
+  <div id="air-price-display" class="price-display">
+    <div class="price-box regular">
+      <div class="price-label">普通价格</div>
+      <div class="price-amount" id="air-price-reg">¥--</div>
+      <div class="price-monthly" id="air-monthly-reg"></div>
+    </div>
+    <div class="price-box edu">
+      <div class="price-label">教育价格</div>
+      <div class="price-amount" id="air-price-edu">¥--</div>
+      <div class="price-monthly" id="air-monthly-edu"></div>
+    </div>
+  </div>
+  <div class="price-diff" id="air-price-diff"></div>
+  <div class="breakdown" id="air-breakdown"></div>
+</div>
+
+<!-- ==================== PRO ==================== -->
+<div class="card">
+  <div class="card-title"><span class="dot pro"></span> MacBook Pro（银色）</div>
+
+  <div class="option-group">
+    <div class="option-label">尺寸</div>
+    <div class="option-buttons" id="pro-size-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">屏幕类型</div>
+    <div class="option-buttons" id="pro-display-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">芯片</div>
+    <div class="option-buttons" id="pro-chip-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">内存</div>
+    <div class="option-buttons" id="pro-memory-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">硬盘</div>
+    <div class="option-buttons" id="pro-storage-btns"></div>
+  </div>
+  <div class="option-group">
+    <div class="option-label">电源适配器</div>
+    <div class="option-buttons" id="pro-power-btns"></div>
+  </div>
+
+  <div id="pro-price-display" class="price-display">
+    <div class="price-box regular">
+      <div class="price-label">普通价格</div>
+      <div class="price-amount" id="pro-price-reg">¥--</div>
+      <div class="price-monthly" id="pro-monthly-reg"></div>
+    </div>
+    <div class="price-box edu">
+      <div class="price-label">教育价格</div>
+      <div class="price-amount" id="pro-price-edu">¥--</div>
+      <div class="price-monthly" id="pro-monthly-edu"></div>
+    </div>
+  </div>
+  <div class="price-diff" id="pro-price-diff"></div>
+  <div class="breakdown" id="pro-breakdown"></div>
+</div>
+
+<p class="note">价格单位：人民币（RMB）· 仅银色 · 数据来源：apple.com.cn<br>部分升级价格为推算值，最终以 Apple Store 显示为准</p>
+</div>
+
+<script>
+// ==================== DATA ====================
+
+const AIR_BASE = {
+  '13-inch': {
+    '10-8':  { reg: 8499,  edu: 7699,  mem: '16GB', storage: '512GB', power: '35W' },
+    '10-10': { reg: 9249,  edu: 8374,  mem: '16GB', storage: '512GB', power: '35W' },
+  },
+  '15-inch': {
+    '10-10': { reg: 9999,  edu: 9199,  mem: '16GB', storage: '512GB', power: '35W' },
+  }
+};
+
+const PRO_BASE = {
+  '14-inch': {
+    'Standard': {
+      'M5-10-10':      { reg: 13499, edu: 12699, mem: '16GB', storage: '1TB', power: '70W' },
+      'M5Pro-15-16':   { reg: 17999, edu: 16799, mem: '24GB', storage: '2TB', power: '70W' },
+      'M5Pro-18-20':   { reg: 19999, edu: 18699, mem: '24GB', storage: '2TB', power: '70W' },
+      'M5Max-18-32':   { reg: 29999, edu: 27499, mem: '36GB', storage: '2TB', power: '96W' },
+      'M5Max-18-40':   { reg: 33749, edu: 30874, mem: '48GB', storage: '2TB', power: '96W' },
+    },
+    'Nano-texture': {
+      'M5-10-10':      { reg: 14624, edu: 13712, mem: '16GB', storage: '1TB', power: '70W' },
+      'M5Pro-15-16':   { reg: 19124, edu: 17812, mem: '24GB', storage: '2TB', power: '70W' },
+      'M5Pro-18-20':   { reg: 21124, edu: 19712, mem: '24GB', storage: '2TB', power: '70W' },
+      'M5Max-18-32':   { reg: 31124, edu: 28512, mem: '36GB', storage: '2TB', power: '96W' },
+      'M5Max-18-40':   { reg: 34874, edu: 31887, mem: '48GB', storage: '2TB', power: '96W' },
+    }
+  },
+  '16-inch': {
+    'Standard': {
+      'M5Pro-18-20':   { reg: 21999, edu: 20399, mem: '24GB', storage: '1TB', power: '140W' },
+      'M5Max-18-32':   { reg: 31999, edu: 29499, mem: '36GB', storage: '2TB', power: '140W' },
+      'M5Max-18-40':   { reg: 35999, edu: 33499, mem: '48GB', storage: '2TB', power: '140W' },
+    },
+    'Nano-texture': {
+      'M5Pro-18-20':   { reg: 23124, edu: 21412, mem: '24GB', storage: '1TB', power: '140W' },
+      'M5Max-18-32':   { reg: 33124, edu: 30512, mem: '36GB', storage: '2TB', power: '140W' },
+      'M5Max-18-40':   { reg: 37124, edu: 34512, mem: '48GB', storage: '2TB', power: '140W' },
+    }
+  }
+};
+
+const DISPLAY_UPGRADE = { reg: 1125, edu: 1013 };
+
+const SIZE_UPGRADE = {
+  'M5Pro-18-20': { reg: 2000, edu: 1700 },
+  'M5Max-18-32': { reg: 2000, edu: 2000 },
+  'M5Max-18-40': { reg: 2250, edu: 2625 },
+};
+
+const MEMORY_UPGRADE = {
+  'M5': {
+    steps: ['16GB','24GB','32GB'],
+    upgrade: [
+      { from: '16GB', to: '24GB', reg: 1500, edu: 1500 },
+      { from: '24GB', to: '32GB', reg: 1500, edu: 1500 },
+    ]
+  },
+  'M5Pro-15-16': {
+    steps: ['24GB','32GB','48GB'],
+    upgrade: [
+      { from: '24GB', to: '32GB', reg: 1500, edu: 1500 },
+      { from: '32GB', to: '48GB', reg: 4500, edu: 3900 },
+    ]
+  },
+  'M5Pro-18-20': {
+    steps: ['24GB','32GB','48GB','64GB'],
+    upgrade: [
+      { from: '24GB', to: '32GB', reg: 1500, edu: 1500 },
+      { from: '32GB', to: '48GB', reg: 4500, edu: 3900 },
+      { from: '48GB', to: '64GB', reg: 3000, edu: 3000 },
+    ]
+  },
+  'M5Max-18-32': {
+    steps: ['36GB','48GB','64GB','128GB'],
+    upgrade: [
+      { from: '36GB', to: '48GB', reg: 3000, edu: 3000 },
+      { from: '48GB', to: '64GB', reg: 3000, edu: 3000 },
+      { from: '64GB', to: '128GB', reg: 9000, edu: 8000 },
+    ]
+  },
+  'M5Max-18-40': {
+    steps: ['48GB','64GB','128GB'],
+    upgrade: [
+      { from: '48GB', to: '64GB', reg: 3000, edu: 3000 },
+      { from: '64GB', to: '128GB', reg: 9000, edu: 8000 },
+    ]
+  },
+};
+
+const STORAGE_UPGRADE = {
+  'Air': {
+    steps: ['512GB','1TB','2TB','4TB'],
+    upgrade: [
+      { from: '512GB', to: '1TB', reg: 1500, edu: 1500 },
+      { from: '1TB', to: '2TB', reg: 1500, edu: 1500 },
+      { from: '2TB', to: '4TB', reg: 3000, edu: 3000 },
+    ]
+  },
+  'Pro': {
+    steps: ['1TB','2TB','4TB','8TB'],
+    upgrade: [
+      { from: '1TB', to: '2TB', reg: 3000, edu: 3000 },
+      { from: '2TB', to: '4TB', reg: 4500, edu: 4500 },
+      { from: '4TB', to: '8TB', reg: 9000, edu: 9000 },
+    ]
+  }
+};
+
+const POWER_UPGRADE = {
+  'Air': {
+    base: '35W',
+    steps: ['35W','40W','70W'],
+    upgrade: [
+      { from: '35W', to: '40W', reg: 150, edu: 150 },
+      { from: '40W', to: '70W', reg: 300, edu: 300 },
+      { from: '35W', to: '70W', reg: 450, edu: 450 },
+    ]
+  },
+  'Pro-14': {
+    base: '70W',
+    steps: ['70W','96W'],
+    upgrade: [
+      { from: '70W', to: '96W', reg: 300, edu: 300 },
+    ]
+  },
+  'Pro-16': {
+    base: '140W',
+    steps: ['140W'],
+    upgrade: []
+  }
+};
+
+// ==================== AIR OPTION DEFINITIONS ====================
+
+const AIR_SIZE_OPTS = [
+  { value: '13-inch', label: '13 英寸' },
+  { value: '15-inch', label: '15 英寸' },
+];
+
+const AIR_CHIP_OPTS = [
+  { value: '10-8',  label: 'M5 (8核GPU)',    avail: ['13-inch'] },
+  { value: '10-10', label: 'M5 (10核GPU)',   avail: ['13-inch','15-inch'] },
+];
+
+const AIR_MEMORY_OPTS = [
+  { value: '16GB', label: '16GB', chips: ['10-8','10-10'] },
+  { value: '24GB', label: '24GB', chips: ['10-8','10-10'] },
+  { value: '32GB', label: '32GB', chips: ['10-10'] },
+];
+
+const AIR_STORAGE_OPTS = [
+  { value: '512GB', label: '512GB', chips: ['10-8','10-10'] },
+  { value: '1TB',   label: '1TB',   chips: ['10-8','10-10'] },
+  { value: '2TB',   label: '2TB',   chips: ['10-8','10-10'] },
+  { value: '4TB',   label: '4TB',   chips: ['10-10'] },
+];
+
+const AIR_POWER_OPTS = [
+  { value: '35W', label: '35W 双USB-C' },
+  { value: '40W', label: '40W 动态' },
+  { value: '70W', label: '70W USB-C' },
+];
+
+// ==================== PRO OPTION DEFINITIONS ====================
+
+const PRO_SIZE_OPTS = [
+  { value: '14-inch', label: '14 英寸' },
+  { value: '16-inch', label: '16 英寸' },
+];
+
+const PRO_DISPLAY_OPTS = [
+  { value: 'Standard',     label: '标准显示屏' },
+  { value: 'Nano-texture', label: '纳米纹理显示屏' },
+];
+
+const PRO_CHIP_OPTS = [
+  { value: 'M5-10-10',    label: 'M5 (10CPU/10GPU)',       sizes: ['14-inch'] },
+  { value: 'M5Pro-15-16', label: 'M5 Pro (15CPU/16GPU)',   sizes: ['14-inch'] },
+  { value: 'M5Pro-18-20', label: 'M5 Pro (18CPU/20GPU)',   sizes: ['14-inch','16-inch'] },
+  { value: 'M5Max-18-32', label: 'M5 Max (18CPU/32GPU)',   sizes: ['14-inch','16-inch'] },
+  { value: 'M5Max-18-40', label: 'M5 Max (18CPU/40GPU)',   sizes: ['14-inch','16-inch'] },
+];
+
+const PRO_MEMORY_OPTS = [
+  { value: '16GB',  label: '16GB',  chips: ['M5-10-10'] },
+  { value: '24GB',  label: '24GB',  chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20'] },
+  { value: '32GB',  label: '32GB',  chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20'] },
+  { value: '36GB',  label: '36GB',  chips: ['M5Max-18-32'] },
+  { value: '48GB',  label: '48GB',  chips: ['M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '64GB',  label: '64GB',  chips: ['M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '128GB', label: '128GB', chips: ['M5Max-18-32','M5Max-18-40'] },
+];
+
+const PRO_STORAGE_OPTS = [
+  { value: '1TB', label: '1TB', chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '2TB', label: '2TB', chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '4TB', label: '4TB', chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '8TB', label: '8TB', chips: ['M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+];
+
+const PRO_POWER_OPTS = [
+  { value: '70W',  label: '70W USB-C',  sizes: ['14-inch'], chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20'] },
+  { value: '96W',  label: '96W USB-C',  sizes: ['14-inch'], chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '140W', label: '140W USB-C', sizes: ['16-inch'] },
+];
+
+// ==================== STATE ====================
+
+let airState = { size: '13-inch', chip: '10-10', memory: '16GB', storage: '512GB', power: '35W' };
+let proState = { size: '14-inch', display: 'Standard', chip: 'M5Pro-18-20', memory: '24GB', storage: '2TB', power: '70W' };
+
+// ==================== HELPERS ====================
+
+function fmt(n) { return '¥' + n.toLocaleString('zh-CN'); }
+function monthly(n) { return '或 ¥' + Math.round(n/24).toLocaleString('zh-CN') + '/月 (24期 0%费率)'; }
+
+function getMemCost(chipKey, from, to, store) {
+  if (from === to) return 0;
+  const d = MEMORY_UPGRADE[chipKey]; if (!d) return 0;
+  let cost = 0, cur = from;
+  while (cur !== to) {
+    const s = d.upgrade.find(u => u.from === cur);
+    if (!s) return 0;
+    cost += store === 'reg' ? s.reg : s.edu;
+    cur = s.to;
+  }
+  return cost;
+}
+
+function getStorCost(type, from, to, store) {
+  if (from === to) return 0;
+  const d = STORAGE_UPGRADE[type]; if (!d) return 0;
+  let cost = 0, cur = from;
+  while (cur !== to) {
+    const s = d.upgrade.find(u => u.from === cur);
+    if (!s) return 0;
+    cost += store === 'reg' ? s.reg : s.edu;
+    cur = s.to;
+  }
+  return cost;
+}
+
+function getPowerCost(type, from, to, store) {
+  if (from === to) return 0;
+  const d = POWER_UPGRADE[type]; if (!d) return 0;
+  const step = d.upgrade.find(u => u.from === from && u.to === to);
+  if (step) return store === 'reg' ? step.reg : step.edu;
+  return 0;
+}
+
+function getSizeUp(chip, from, to, store) {
+  if (from === to) return 0;
+  const d = SIZE_UPGRADE[chip]; if (!d) return 0;
+  return store === 'reg' ? d.reg : d.edu;
+}
+
+// ==================== RENDER BUTTONS ====================
+
+function renderBtns(containerId, opts, stateKey, stateObj, onClick, cssClass, checkAvail) {
+  const el = document.getElementById(containerId);
+  let html = '';
+  for (const o of opts) {
+    const sel = o.value === stateObj[stateKey] ? ' selected' + (cssClass||'') : '';
+    let dis = '';
+    if (checkAvail && !checkAvail(o, stateObj)) dis = ' disabled';
+    html += `<button class="option-btn${sel}"${dis} data-value="${o.value}">${o.label}</button>`;
+  }
+  el.innerHTML = html;
+
+  el.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      stateObj[stateKey] = btn.dataset.value;
+      onClick();
+    });
+  });
+}
+
+// ==================== AIR ====================
+
+function renderAir() {
+  renderBtns('air-size-btns', AIR_SIZE_OPTS, 'size', airState, airChanged, '');
+  renderBtns('air-chip-btns', AIR_CHIP_OPTS, 'chip', airState, airChanged, '', (o,st) => o.avail.includes(st.size));
+  renderBtns('air-memory-btns', AIR_MEMORY_OPTS, 'memory', airState, airChanged, '', (o,st) => o.chips.includes(st.chip));
+  renderBtns('air-storage-btns', AIR_STORAGE_OPTS, 'storage', airState, airChanged, '', (o,st) => o.chips.includes(st.chip));
+  renderBtns('air-power-btns', AIR_POWER_OPTS, 'power', airState, airChanged);
+}
+
+function airChanged() {
+  // Validate constraints on size change
+  const validChips = AIR_CHIP_OPTS.filter(o => o.avail.includes(airState.size)).map(o => o.value);
+  if (!validChips.includes(airState.chip)) airState.chip = '10-10';
+
+  const validMems = AIR_MEMORY_OPTS.filter(o => o.chips.includes(airState.chip)).map(o => o.value);
+  if (!validMems.includes(airState.memory)) airState.memory = validMems[0];
+
+  const validStors = AIR_STORAGE_OPTS.filter(o => o.chips.includes(airState.chip)).map(o => o.value);
+  if (!validStors.includes(airState.storage)) airState.storage = validStors[0];
+
+  renderAir();
+  calcAir();
+}
+
+function calcAir() {
+  const { size, chip, memory, storage, power } = airState;
+  const base = AIR_BASE[size][chip];
+  if (!base) return;
+
+  const mReg = getMemCost('M5', base.mem, memory, 'reg');
+  const mEdu = getMemCost('M5', base.mem, memory, 'edu');
+  const sReg = getStorCost('Air', base.storage, storage, 'reg');
+  const sEdu = getStorCost('Air', base.storage, storage, 'edu');
+  const pReg = getPowerCost('Air', base.power, power, 'reg');
+  const pEdu = getPowerCost('Air', base.power, power, 'edu');
+
+  const tReg = base.reg + mReg + sReg + pReg;
+  const tEdu = base.edu + mEdu + sEdu + pEdu;
+
+  document.getElementById('air-price-reg').textContent = fmt(tReg);
+  document.getElementById('air-price-edu').textContent = fmt(tEdu);
+  document.getElementById('air-monthly-reg').textContent = monthly(tReg);
+  document.getElementById('air-monthly-edu').textContent = monthly(tEdu);
+
+  const diff = tReg - tEdu;
+  const dEl = document.getElementById('air-price-diff');
+  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）`;
+  dEl.className = 'price-diff cheaper';
+
+  const bd = document.getElementById('air-breakdown');
+  let h = '<table>';
+  h += `<tr><td>基础价格 (${size} · ${airState.chip === '10-8' ? 'M5 8核GPU' : 'M5 10核GPU'})</td><td>${fmt(base.reg)}</td><td>${fmt(base.edu)}</td></tr>`;
+  if (mReg) h += `<tr><td>内存 ${base.mem} → ${memory}</td><td>+${fmt(mReg)}</td><td>+${fmt(mEdu)}</td></tr>`;
+  if (sReg) h += `<tr><td>硬盘 ${base.storage} → ${storage}</td><td>+${fmt(sReg)}</td><td>+${fmt(sEdu)}</td></tr>`;
+  if (pReg) h += `<tr><td>电源 ${base.power} → ${power}</td><td>+${fmt(pReg)}</td><td>+${fmt(pEdu)}</td></tr>`;
+  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td></tr>`;
+  h += '</table>';
+  bd.innerHTML = h;
+}
+
+// ==================== PRO ====================
+
+function renderPro() {
+  renderBtns('pro-size-btns', PRO_SIZE_OPTS, 'size', proState, proChanged, ' pro');
+  renderBtns('pro-display-btns', PRO_DISPLAY_OPTS, 'display', proState, proChanged, ' pro');
+  renderBtns('pro-chip-btns', PRO_CHIP_OPTS, 'chip', proState, proChanged, ' pro', (o,st) => o.sizes.includes(st.size));
+  renderBtns('pro-memory-btns', PRO_MEMORY_OPTS, 'memory', proState, proChanged, ' pro', (o,st) => o.chips.includes(st.chip));
+  renderBtns('pro-storage-btns', PRO_STORAGE_OPTS, 'storage', proState, proChanged, ' pro', (o,st) => o.chips.includes(st.chip));
+  renderBtns('pro-power-btns', PRO_POWER_OPTS, 'power', proState, proChanged, ' pro', (o,st) => {
+    if (o.sizes && !o.sizes.includes(st.size)) return false;
+    if (o.chips && !o.chips.includes(st.chip)) return false;
+    return true;
+  });
+}
+
+function proChanged() {
+  const validChips = PRO_CHIP_OPTS.filter(o => o.sizes.includes(proState.size)).map(o => o.value);
+  if (!validChips.includes(proState.chip)) proState.chip = validChips[0];
+
+  const validMems = PRO_MEMORY_OPTS.filter(o => o.chips.includes(proState.chip)).map(o => o.value);
+  if (!validMems.includes(proState.memory)) proState.memory = validMems[0];
+
+  const validStors = PRO_STORAGE_OPTS.filter(o => o.chips.includes(proState.chip)).map(o => o.value);
+  if (!validStors.includes(proState.storage)) proState.storage = validStors[0];
+
+  const validPower = PRO_POWER_OPTS.filter(o => {
+    if (o.sizes && !o.sizes.includes(proState.size)) return false;
+    if (o.chips && !o.chips.includes(proState.chip)) return false;
+    return true;
+  }).map(o => o.value);
+  if (!validPower.includes(proState.power)) proState.power = validPower[0];
+
+  renderPro();
+  calcPro();
+}
+
+function calcPro() {
+  const { size, display, chip, memory, storage, power } = proState;
+
+  // Start from 14" Standard
+  const base14std = PRO_BASE['14-inch']['Standard'][chip];
+  if (!base14std) return;
+
+  let startReg = base14std.reg;
+  let startEdu = base14std.edu;
+  const items = [];
+
+  // Display
+  if (display === 'Nano-texture') {
+    const dr = DISPLAY_UPGRADE.reg;
+    const de = DISPLAY_UPGRADE.edu;
+    startReg += dr; startEdu += de;
+    items.push({ label: '纳米纹理显示屏', reg: dr, edu: de });
+  }
+
+  // Size - but check storage difference
+  // 14" M5Pro-18-20 has 2TB base, but 16" M5Pro-18-20 has 1TB base
+  // The SIZE_UPGRADE cost accounts for the size difference only
+  // Storage is calculated separately from the 14" standard base
+
+  if (size === '16-inch') {
+    const sr = getSizeUp(chip, '14-inch', '16-inch', 'reg');
+    const se = getSizeUp(chip, '14-inch', '16-inch', 'edu');
+    startReg += sr; startEdu += se;
+    items.push({ label: '升级至 16 英寸', reg: sr, edu: se });
+
+    // If 16-inch base has different storage than 14-inch base for this chip,
+    // we need to adjust. 16" M5Pro-18-20 base is 1TB, 14" is 2TB.
+    // The size upgrade price includes this storage difference already.
+    // We'll use the 14" standard base for storage calculation.
+  }
+
+  // Memory
+  const mReg = getMemCost(chip, base14std.mem, memory, 'reg');
+  const mEdu = getMemCost(chip, base14std.mem, memory, 'edu');
+  if (mReg) items.push({ label: `内存 ${base14std.mem} → ${memory}`, reg: mReg, edu: mEdu });
+
+  // Storage
+  const sReg = getStorCost('Pro', base14std.storage, storage, 'reg');
+  const sEdu = getStorCost('Pro', base14std.storage, storage, 'edu');
+  if (sReg) items.push({ label: `硬盘 ${base14std.storage} → ${storage}`, reg: sReg, edu: sEdu });
+
+  // Power - for 14" models, power upgrade is optional
+  // For 14-inch with Max chips, base power is 96W (only option)
+  // For 16-inch, power is always 140W
+  let powerType, basePower;
+  if (size === '16-inch') {
+    powerType = 'Pro-16'; basePower = '140W';
+  } else {
+    powerType = 'Pro-14'; basePower = chip.startsWith('M5Max') ? '96W' : '70W';
+  }
+  const pReg = getPowerCost(powerType, basePower, power, 'reg');
+  const pEdu = getPowerCost(powerType, basePower, power, 'edu');
+  if (pReg) items.push({ label: `电源适配器 ${basePower} → ${power}`, reg: pReg, edu: pEdu });
+
+  const tReg = startReg + mReg + sReg + pReg;
+  const tEdu = startEdu + mEdu + sEdu + pEdu;
+
+  document.getElementById('pro-price-reg').textContent = fmt(tReg);
+  document.getElementById('pro-price-edu').textContent = fmt(tEdu);
+  document.getElementById('pro-monthly-reg').textContent = monthly(tReg);
+  document.getElementById('pro-monthly-edu').textContent = monthly(tEdu);
+
+  const diff = tReg - tEdu;
+  const dEl = document.getElementById('pro-price-diff');
+  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）`;
+  dEl.className = 'price-diff cheaper';
+
+  const bd = document.getElementById('pro-breakdown');
+  let h = '<table>';
+  h += `<tr><td>基础价格 (14" 标准 ${chip.replace(/-/g,' ')})</td><td>${fmt(base14std.reg)}</td><td>${fmt(base14std.edu)}</td></tr>`;
+  for (const it of items) {
+    h += `<tr><td>${it.label}</td><td>+${fmt(it.reg)}</td><td>+${fmt(it.edu)}</td></tr>`;
+  }
+  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td></tr>`;
+  h += '</table>';
+  bd.innerHTML = h;
+}
+
+// ==================== INIT ====================
+renderAir();
+calcAir();
+renderPro();
+calcPro();
+</script>
+</body>
+</html>
