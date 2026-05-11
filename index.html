@@ -451,21 +451,45 @@ function renderBtns(containerId, opts, stateKey, stateObj, onClick, cssClass, ch
 
 function renderAir() {
   renderBtns('air-size-btns', AIR_SIZE_OPTS, 'size', airState, airChanged, '');
-  renderBtns('air-chip-btns', AIR_CHIP_OPTS, 'chip', airState, airChanged, '', (o,st) => o.avail.includes(st.size));
-  renderBtns('air-memory-btns', AIR_MEMORY_OPTS, 'memory', airState, airChanged, '', (o,st) => o.chips.includes(st.chip));
-  renderBtns('air-storage-btns', AIR_STORAGE_OPTS, 'storage', airState, airChanged, '', (o,st) => o.chips.includes(st.chip));
+  // 8-core only on 13-inch + 16GB + 512GB
+  renderBtns('air-chip-btns', AIR_CHIP_OPTS, 'chip', airState, airChanged, '', (o,st) => {
+    if (o.value === '10-8') return st.size === '13-inch' && st.memory === '16GB' && st.storage === '512GB';
+    return true;
+  });
+  // When 8-core, only 16GB/512GB; 10-core all options
+  renderBtns('air-memory-btns', AIR_MEMORY_OPTS, 'memory', airState, airChanged, '', (o,st) => {
+    if (st.chip === '10-8') return o.value === '16GB';
+    return true;
+  });
+  renderBtns('air-storage-btns', AIR_STORAGE_OPTS, 'storage', airState, airChanged, '', (o,st) => {
+    if (st.chip === '10-8') return o.value === '512GB';
+    return true;
+  });
   renderBtns('air-power-btns', AIR_POWER_OPTS, 'power', airState, airChanged);
 }
 
 function airChanged() {
-  // Validate constraints on size change
-  const validChips = AIR_CHIP_OPTS.filter(o => o.avail.includes(airState.size)).map(o => o.value);
-  if (!validChips.includes(airState.chip)) airState.chip = '10-10';
+  // 8-core only valid on 13-inch + 16GB + 512GB
+  if (airState.chip === '10-8') {
+    if (airState.size !== '13-inch' || airState.memory !== '16GB' || airState.storage !== '512GB') {
+      airState.chip = '10-10';
+    }
+  }
+  // 15-inch doesn't have 8-core
+  if (airState.size === '15-inch' && airState.chip === '10-8') {
+    airState.chip = '10-10';
+  }
 
-  const validMems = AIR_MEMORY_OPTS.filter(o => o.chips.includes(airState.chip)).map(o => o.value);
+  const validMems = AIR_MEMORY_OPTS.filter(o => {
+    if (airState.chip === '10-8') return o.value === '16GB';
+    return true;
+  }).map(o => o.value);
   if (!validMems.includes(airState.memory)) airState.memory = validMems[0];
 
-  const validStors = AIR_STORAGE_OPTS.filter(o => o.chips.includes(airState.chip)).map(o => o.value);
+  const validStors = AIR_STORAGE_OPTS.filter(o => {
+    if (airState.chip === '10-8') return o.value === '512GB';
+    return true;
+  }).map(o => o.value);
   if (!validStors.includes(airState.storage)) airState.storage = validStors[0];
 
   renderAir();
