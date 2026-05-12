@@ -241,10 +241,9 @@ const MEMORY_UPGRADE = {
     ]
   },
   'M5Max-18-32': {
-    steps: ['36GB','48GB','64GB','128GB'],
+    steps: ['36GB','64GB','128GB'],
     upgrade: [
-      { from: '36GB', to: '48GB', reg: 3000, edu: 3000 },
-      { from: '48GB', to: '64GB', reg: 3000, edu: 3000 },
+      { from: '36GB', to: '64GB', reg: 6000, edu: 6000 },
       { from: '64GB', to: '128GB', reg: 9000, edu: 8000 },
     ]
   },
@@ -356,7 +355,7 @@ const PRO_MEMORY_OPTS = [
   { value: '24GB',  label: '24GB',  chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20'] },
   { value: '32GB',  label: '32GB',  chips: ['M5-10-10','M5Pro-15-16','M5Pro-18-20'] },
   { value: '36GB',  label: '36GB',  chips: ['M5Max-18-32'] },
-  { value: '48GB',  label: '48GB',  chips: ['M5Pro-15-16','M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
+  { value: '48GB',  label: '48GB',  chips: ['M5Pro-15-16','M5Pro-18-20','M5Max-18-40'] },
   { value: '64GB',  label: '64GB',  chips: ['M5Pro-18-20','M5Max-18-32','M5Max-18-40'] },
   { value: '128GB', label: '128GB', chips: ['M5Max-18-32','M5Max-18-40'] },
 ];
@@ -553,6 +552,11 @@ function renderPro() {
 function proChanged() {
   const validChips = PRO_CHIP_OPTS.filter(o => o.sizes.includes(proState.size)).map(o => o.value);
   if (!validChips.includes(proState.chip)) proState.chip = validChips[0];
+
+  // M5Max-18-32 can't have 48GB → switch to M5Max-18-40
+  if (proState.chip === 'M5Max-18-32' && proState.memory === '48GB') proState.chip = 'M5Max-18-40';
+  // M5Max-18-40 can't have 36GB → switch to M5Max-18-32
+  if (proState.chip === 'M5Max-18-40' && proState.memory === '36GB') proState.chip = 'M5Max-18-32';
 
   const validMems = PRO_MEMORY_OPTS.filter(o => o.chips.includes(proState.chip)).map(o => o.value);
   if (!validMems.includes(proState.memory)) proState.memory = validMems[0];
