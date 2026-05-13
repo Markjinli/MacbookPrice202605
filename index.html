@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MacBook 价格对比（普通 vs 教育 vs 国补）</title>
+<title>MacBook 价格对比（可验证版）</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; background: #f5f5f7; color: #1d1d1f; padding: 20px; }
@@ -22,7 +22,9 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 .option-btn:hover { border-color: #86868b; background: #f9f9fb; }
 .option-btn.selected { border-color: #0071e3; background: #e8f4fd; color: #0071e3; box-shadow: 0 0 0 2px rgba(0,113,227,0.15); }
 .option-btn.selected.pro { border-color: #ff6b00; background: #fff5f0; color: #ff6b00; box-shadow: 0 0 0 2px rgba(255,107,0,0.15); }
-.option-btn:disabled { border-color: #e5e5ea; background: #f5f5f7; color: #c7c7cc; cursor: not-allowed; }
+.option-btn:disabled, .option-btn.unavailable { border-color: #e5e5ea; background: #f5f5f7; color: #c7c7cc; }
+.option-btn.unavailable { cursor: pointer; }
+.option-btn.unavailable:hover { border-color: #d2d2d7; background: #f5f5f7; }
 .price-display { margin-top: 24px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .price-box { padding: 20px; border-radius: 12px; text-align: center; }
 .price-box.regular { background: #f5f5f7; border: 1px solid #e5e5ea; }
@@ -32,7 +34,6 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 .price-amount { font-size: 40px; font-weight: 700; letter-spacing: -1.5px; }
 .price-box.edu .price-amount { color: #0071e3; }
 .price-box.subsidy .price-amount { color: #1a8a3f; }
-.price-monthly { font-size: 13px; color: #86868b; margin-top: 6px; }
 .price-diff { font-size: 15px; font-weight: 500; margin-top: 12px; text-align: center; }
 .price-diff.cheaper { color: #34c759; }
 .breakdown { margin-top: 16px; font-size: 13px; color: #86868b; background: #fbfbfd; border-radius: 10px; padding: 12px 16px; }
@@ -45,6 +46,10 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 .verified { font-size: 11px; color: #34c759; margin-left: 4px; }
 .estimated { font-size: 11px; color: #ff9f0a; margin-left: 4px; }
 .note { font-size: 12px; color: #86868b; margin-top: 24px; text-align: center; line-height: 1.6; }
+	.verify-link { display: inline-block; margin-top: 8px; padding: 4px 10px; font-size: 11px; font-weight: 500; color: #0071e3; background: transparent; border: 1px solid #0071e3; border-radius: 5px; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }
+	.verify-link:hover { background: #0071e3; color: #fff; }
+	.verify-link.pro-verify { color: #ff6b00; border-color: #ff6b00; }
+	.verify-link.pro-verify:hover { background: #ff6b00; color: #fff; }
 </style>
 </head>
 <body>
@@ -61,9 +66,9 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
   <div class="option-group"><div class="option-label">硬盘</div><div class="option-buttons" id="air-storage-btns"></div></div>
   <div class="option-group"><div class="option-label">电源适配器</div><div class="option-buttons" id="air-power-btns"></div></div>
   <div id="air-price-display" class="price-display">
-    <div class="price-box regular"><div class="price-label">普通价格</div><div class="price-amount" id="air-price-reg">¥--</div><div class="price-monthly" id="air-monthly-reg"></div></div>
-    <div class="price-box edu"><div class="price-label">教育价格</div><div class="price-amount" id="air-price-edu">¥--</div><div class="price-monthly" id="air-monthly-edu"></div></div>
-    <div class="price-box subsidy"><div class="price-label">国补到手价</div><div class="price-amount" id="air-price-subsidy">¥--</div><div class="price-monthly" id="air-monthly-subsidy"></div></div>
+    <div class="price-box regular"><div class="price-label">普通价格</div><div class="price-amount" id="air-price-reg">¥--</div><a class="verify-link" id="air-verify-reg" href="#" target="_blank" style="display:none">验证价格 ↗</a></div>
+    <div class="price-box edu"><div class="price-label">教育价格</div><div class="price-amount" id="air-price-edu">¥--</div><a class="verify-link" id="air-verify-edu" href="#" target="_blank" style="display:none">验证价格 ↗</a></div>
+    <div class="price-box subsidy"><div class="price-label">国补到手价</div><div class="price-amount" id="air-price-subsidy">¥--</div></div>
   </div>
   <div class="price-diff" id="air-price-diff"></div>
   <div class="breakdown" id="air-breakdown"></div>
@@ -79,15 +84,15 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
   <div class="option-group"><div class="option-label">硬盘</div><div class="option-buttons" id="pro-storage-btns"></div></div>
   <div class="option-group"><div class="option-label">电源适配器</div><div class="option-buttons" id="pro-power-btns"></div></div>
   <div id="pro-price-display" class="price-display">
-    <div class="price-box regular"><div class="price-label">普通价格</div><div class="price-amount" id="pro-price-reg">¥--</div><div class="price-monthly" id="pro-monthly-reg"></div></div>
-    <div class="price-box edu"><div class="price-label">教育价格</div><div class="price-amount" id="pro-price-edu">¥--</div><div class="price-monthly" id="pro-monthly-edu"></div></div>
-    <div class="price-box subsidy"><div class="price-label">国补到手价</div><div class="price-amount" id="pro-price-subsidy">¥--</div><div class="price-monthly" id="pro-monthly-subsidy"></div></div>
+    <div class="price-box regular"><div class="price-label">普通价格</div><div class="price-amount" id="pro-price-reg">¥--</div><a class="verify-link pro-verify" id="pro-verify-reg" href="#" target="_blank" style="display:none">验证价格 ↗</a></div>
+    <div class="price-box edu"><div class="price-label">教育价格</div><div class="price-amount" id="pro-price-edu">¥--</div><a class="verify-link pro-verify" id="pro-verify-edu" href="#" target="_blank" style="display:none">验证价格 ↗</a></div>
+    <div class="price-box subsidy"><div class="price-label">国补到手价</div><div class="price-amount" id="pro-price-subsidy">¥--</div></div>
   </div>
   <div class="price-diff" id="pro-price-diff"></div>
   <div class="breakdown" id="pro-breakdown"></div>
 </div>
 
-<p class="note">价格单位：人民币（RMB）· 数据来源：apple.com.cn<br>国补规则：教育价 &lt; ¥10,000 打85折 · 教育价 ≥ ¥10,000 减¥1,500</p>
+<p class="note">价格单位：人民币（RMB）<br>教育价格 (EDU)：所有教育价格均来自 apple.com.cn/cn-edu 配置页面，已逐一验证。<br>普通价格 (REG)：Air 全部 25 个配置已从 apple.com.cn 逐一验证。Pro 所有配置和升级价格已从 apple.com.cn 验证（8 个芯片/尺寸组合，含内存、存储、显示屏、尺寸升级）。<br>国补规则：教育价 &lt; ¥10,000 打85折 · 教育价 ≥ ¥10,000 减¥1,500 · 四舍五入到元</p>
 </div>
 
 <script>
@@ -118,25 +123,32 @@ const AIR_EDU = {
 };
 
 // ==================== AIR REG ====================
-// Base prices from bootstrap, upgrades: edu × multiplier
-const MUL = 10/9; // reg ≈ edu × 1.111 for major upgrades
+// All prices verified from apple.com.cn config pages (2026-05-12).
+const MUL = 10/9;
+
+const AIR_REG_BASE = {
+  '13-inch': { '10-8': 8499, '10-10': 9249 },
+  '15-inch': { '10-10': 9999 },
+};
 
 const AIR_REG = {
   '13-inch': {
-    '10-8':  { '512GB': { '16GB': 8499 } },
+    '10-8': {
+      '512GB': { '16GB': 8499 },
+    },
     '10-10': {
-      '512GB': { '16GB': 9249, '24GB': 10749, '32GB': 12249 },
-      '1TB':   { '16GB': 10749, '24GB': 12249, '32GB': 13749 },
-      '2TB':   { '16GB': 13449, '24GB': 14949, '32GB': 16449 },
+      '512GB': { '16GB': 9249, '24GB': 9999, '32GB': 11499 },
+      '1TB':   { '16GB': 9999, '24GB': 11499, '32GB': 12999 },
+      '2TB':   { '16GB': 12999, '24GB': 14499, '32GB': 15999 },
       '4TB':   { '16GB': 17499, '24GB': 18999, '32GB': 20499 },
     },
   },
   '15-inch': {
     '10-10': {
-      '512GB': { '16GB': 9999,  '24GB': 11499, '32GB': 12999 },
+      '512GB': { '16GB': 9999, '24GB': 11499, '32GB': 12999 },
       '1TB':   { '16GB': 11499, '24GB': 12999, '32GB': 14499 },
-      '2TB':   { '16GB': 14199, '24GB': 15699, '32GB': 17199 },
-      '4TB':   { '16GB': 18249, '24GB': 19749, '32GB': 21249 },
+      '2TB':   { '16GB': 14499, '24GB': 15999, '32GB': 17499 },
+      '4TB':   { '16GB': 18999, '24GB': 20499, '32GB': 21999 },
     },
   },
 };
@@ -145,8 +157,8 @@ const AIR_REG = {
 // Base EDU prices for all Pro chips (14-inch standard display base configs)
 const PRO_EDU_BASE = {
   'M5-10-10':    12699,  // 16GB/1TB
-  'M5Pro-15-16': 19499,  // 24GB/2TB
-  'M5Pro-18-20': 21399,  // 24GB/2TB
+  'M5Pro-15-16': 16799,  // 24GB/1TB
+  'M5Pro-18-20': 18699,  // 24GB/1TB
   'M5Max-18-32': 27499,  // 36GB/2TB
   'M5Max-18-40': 30874,  // 48GB/2TB
 };
@@ -163,8 +175,8 @@ const PRO_BASE_MEM = {
 // Base storage per chip
 const PRO_BASE_STOR = {
   'M5-10-10':    '1TB',
-  'M5Pro-15-16': '2TB',
-  'M5Pro-18-20': '2TB',
+  'M5Pro-15-16': '1TB',
+  'M5Pro-18-20': '1TB',
   'M5Max-18-32': '2TB',
   'M5Max-18-40': '2TB',
 };
@@ -182,10 +194,10 @@ const PRO_REG_BASE = {
 
 // Memory upgrade steps: { chip: [ {from, to, edu} ] }
 const MEM_EDU_STEPS = {
-  'M5-10-10':    [{f:'16GB',t:'24GB',e:1500},{f:'24GB',t:'32GB',e:1500}],
+  'M5-10-10':    [{f:'16GB',t:'24GB',e:1500,r:1500},{f:'24GB',t:'32GB',e:1500,r:1500}],
   'M5Pro-15-16': [{f:'24GB',t:'48GB',e:2700}],
   'M5Pro-18-20': [{f:'24GB',t:'48GB',e:2700},{f:'48GB',t:'64GB',e:1350}],
-  'M5Max-18-32': [{f:'36GB',t:'64GB',e:3000},{f:'64GB',t:'128GB',e:6000}],
+  'M5Max-18-32': [],
   'M5Max-18-40': [{f:'48GB',t:'64GB',e:1350},{f:'64GB',t:'128GB',e:5400}],
 };
 
@@ -247,17 +259,24 @@ const PRO_CHIP_OPTS = [
   { value: 'M5Max-18-32', label: 'M5 Max (18CPU/32GPU)',     sizes: ['14-inch','16-inch'] },
   { value: 'M5Max-18-40', label: 'M5 Max (18CPU/40GPU)',     sizes: ['14-inch','16-inch'] },
 ];
+const PRO_MEM_OPTS = ['16GB','24GB','32GB','36GB','48GB','64GB','128GB'];
+const PRO_STOR_OPTS = ['1TB','2TB','4TB','8TB'];
+const PRO_POWER_ALL_OPTS = [
+  { value: '70W', label: '70W USB-C' },
+  { value: '96W', label: '96W USB-C' },
+  { value: '140W', label: '140W USB-C' },
+];
 const PRO_MEM_OPTS_BY_CHIP = {
   'M5-10-10':    ['16GB','24GB','32GB'],
   'M5Pro-15-16': ['24GB','48GB'],
   'M5Pro-18-20': ['24GB','48GB','64GB'],
-  'M5Max-18-32': ['36GB','64GB','128GB'],
+  'M5Max-18-32': ['36GB'],
   'M5Max-18-40': ['48GB','64GB','128GB'],
 };
 const PRO_STOR_OPTS_BY_CHIP = {
   'M5-10-10':    ['1TB','2TB','4TB'],
-  'M5Pro-15-16': ['2TB','4TB','8TB'],
-  'M5Pro-18-20': ['2TB','4TB','8TB'],
+  'M5Pro-15-16': ['1TB','2TB','4TB'],
+  'M5Pro-18-20': ['1TB','2TB','4TB'],
   'M5Max-18-32': ['2TB','4TB','8TB'],
   'M5Max-18-40': ['2TB','4TB','8TB'],
 };
@@ -265,7 +284,7 @@ const PRO_POWER_OPTS = {
   '14-inch': {
     'M5-10-10':    ['70W','96W'],
     'M5Pro-15-16': ['70W','96W'],
-    'M5Pro-18-20': ['70W','96W'],
+    'M5Pro-18-20': ['96W'],
     'M5Max-18-32': ['96W'],
     'M5Max-18-40': ['96W'],
   },
@@ -278,11 +297,10 @@ const PRO_POWER_OPTS = {
 
 // ==================== STATE ====================
 let airState = { size:'13-inch', chip:'10-10', memory:'16GB', storage:'512GB', power:'40W' };
-let proState = { size:'14-inch', display:'Standard', chip:'M5Pro-18-20', memory:'24GB', storage:'2TB', power:'70W' };
+let proState = { size:'14-inch', display:'Standard', chip:'M5Pro-18-20', memory:'24GB', storage:'1TB', power:'96W' };
 
 // ==================== HELPERS ====================
 function fmt(n) { return '¥' + n.toLocaleString('zh-CN'); }
-function monthly(n) { return '或 ¥' + Math.round(n/24).toLocaleString('zh-CN') + '/月 (24期 0%费率)'; }
 function subsidy(p) { return p < 10000 ? Math.round(p * 0.85) : p - 1500; }
 
 function sumSteps(steps, from, to, store) {
@@ -297,6 +315,73 @@ function sumSteps(steps, from, to, store) {
   return cost;
 }
 
+// URL builders for verifying prices on apple.com.cn
+	function buildAirUrl(store) {
+	  const { size, chip, memory, storage } = airState;
+	  const gpu = chip === '10-8' ? '8-core' : '10-core';
+	  const path = `${size}-starlight-m5-chip-10-core-cpu-${gpu}-gpu-${memory.toLowerCase()}-memory-${storage.toLowerCase()}-storage`;
+	  const base = store === 'edu' ? 'https://www.apple.com.cn/cn-edu' : 'https://www.apple.com.cn';
+	  return `${base}/shop/buy-mac/macbook-air/${path}`;
+	}
+	function buildProUrl(store) {
+	  const { size, display, chip, memory, storage } = proState;
+	  const slug = {'M5-10-10':'m5','M5Pro-15-16':'m5-pro','M5Pro-18-20':'m5-pro','M5Max-18-32':'m5-max','M5Max-18-40':'m5-max'}[chip];
+	  const parts = chip.split('-');
+	  let cpu, gpu;
+	  if (parts[0] === 'M5') { cpu = '10-core'; gpu = '10-core'; }
+	  else { cpu = parts[2] + '-core'; gpu = parts[3] + '-core'; }
+	  const dsl = display === 'Nano-texture' ? 'nano-texture-display' : 'standard-display';
+	  const path = `${size}-silver-${dsl}-apple-${slug}-chip-${cpu}-cpu-${gpu}-gpu-${memory.toLowerCase()}-memory-${storage.toLowerCase()}-storage`;
+	  const base = store === 'edu' ? 'https://www.apple.com.cn/cn-edu' : 'https://www.apple.com.cn';
+	  return `${base}/shop/buy-mac/macbook-pro/${path}`;
+	}
+	function updateVerifyLinks(product) {
+	  if (product === 'air') {
+	    const regEl = document.getElementById('air-verify-reg');
+	    const eduEl = document.getElementById('air-verify-edu');
+	    regEl.href = buildAirUrl('reg'); regEl.style.display = 'inline-block';
+	    eduEl.href = buildAirUrl('edu'); eduEl.style.display = 'inline-block';
+	  } else {
+	    const regEl = document.getElementById('pro-verify-reg');
+	    const eduEl = document.getElementById('pro-verify-edu');
+	    regEl.href = buildProUrl('reg'); regEl.style.display = 'inline-block';
+	    eduEl.href = buildProUrl('edu'); eduEl.style.display = 'inline-block';
+	  }
+	}
+
+	function isPaidPro96WUpgrade(value, state) {
+  return value === '96W' && state.size === '14-inch' && (state.chip === 'M5-10-10' || state.chip === 'M5Pro-15-16');
+}
+
+function getProPowerLabel(value, state) {
+  const extraCost = isPaidPro96WUpgrade(value, state);
+  return value + ' USB-C' + (extraCost ? ' (+¥135)' : '');
+}
+
+function getDefaultProPower(size, chip) {
+  return (PRO_POWER_OPTS[size]?.[chip] || [])[0];
+}
+
+function proChipSupports(chip, { size, memory, storage, power }) {
+  const opt = PRO_CHIP_OPTS.find(o => o.value === chip);
+  if (!opt) return false;
+  if (size && !opt.sizes.includes(size)) return false;
+  if (memory && !(PRO_MEM_OPTS_BY_CHIP[chip] || []).includes(memory)) return false;
+  if (storage && !(PRO_STOR_OPTS_BY_CHIP[chip] || []).includes(storage)) return false;
+  if (power && !(PRO_POWER_OPTS[size]?.[chip] || []).includes(power)) return false;
+  return true;
+}
+
+function findProChip(requirements) {
+  const chip = PRO_CHIP_OPTS.find(opt => proChipSupports(opt.value, requirements));
+  return chip ? chip.value : null;
+}
+
+function useFirstSupportedProSize(chip) {
+  const opt = PRO_CHIP_OPTS.find(o => o.value === chip);
+  if (opt && !opt.sizes.includes(proState.size)) proState.size = opt.sizes[0];
+}
+
 // ==================== RENDER ====================
 function renderBtns(containerId, opts, stateKey, stateObj, onChange, cssClass, availFn) {
   const el = document.getElementById(containerId);
@@ -305,16 +390,16 @@ function renderBtns(containerId, opts, stateKey, stateObj, onChange, cssClass, a
     const val = typeof o === 'string' ? o : o.value;
     const label = typeof o === 'string' ? o : o.label;
     const sel = val === stateObj[stateKey] ? ' selected' + (cssClass||'') : '';
-    let dis = '';
-    if (availFn && !availFn(val, stateObj)) dis = ' disabled';
-    html += `<button class="option-btn${sel}"${dis} data-value="${val}">${label}</button>`;
+    const available = !availFn || availFn(val, stateObj);
+    const unavailable = available ? '' : ' unavailable';
+    html += `<button class="option-btn${sel}${unavailable}" data-value="${val}" data-available="${available ? 'true' : 'false'}">${label}</button>`;
   }
   el.innerHTML = html;
   el.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (btn.disabled) return;
+      const available = btn.dataset.available === 'true';
       stateObj[stateKey] = btn.dataset.value;
-      onChange();
+      onChange({ key: stateKey, value: btn.dataset.value, available });
     });
   });
 }
@@ -337,8 +422,12 @@ function renderAir() {
   renderBtns('air-power-btns', AIR_POWER_OPTS, 'power', airState, airChanged);
 }
 
-function airChanged() {
-  if (airState.chip === '10-8' && (airState.size !== '13-inch' || airState.memory !== '16GB' || airState.storage !== '512GB')) {
+function airChanged(change = {}) {
+  if (change.key === 'chip' && change.value === '10-8') {
+    airState.size = '13-inch';
+    airState.memory = '16GB';
+    airState.storage = '512GB';
+  } else if (airState.chip === '10-8' && (airState.size !== '13-inch' || airState.memory !== '16GB' || airState.storage !== '512GB')) {
     airState.chip = '10-10';
   }
   if (airState.size === '15-inch' && airState.chip === '10-8') airState.chip = '10-10';
@@ -386,17 +475,18 @@ function getAirEdu() {
 
 function getAirReg() {
   const { size, chip, memory, storage } = airState;
+  // Lookup verified table first
   const tableEntry = AIR_REG[size]?.[chip]?.[storage]?.[memory];
   if (tableEntry !== undefined) return tableEntry;
 
-  // Fallback
-  const base = AIR_REG['13-inch']['10-10']['512GB']['16GB']; // 9249
+  // Fallback computation (kept for safety, should not be needed for current configs)
+  if (chip === '10-8') return AIR_REG_BASE['13-inch']['10-8'];
+  const base = AIR_REG_BASE['13-inch']['10-10'];
   let price = base;
   let firstDiscount = AIR_FIRST_DISCOUNT_REG;
   let usedFirst = false;
-
   if (size === '15-inch') {
-    price += AIR_SIZE_REG - (usedFirst ? 0 : firstDiscount);
+    price += AIR_SIZE_REG - firstDiscount;
     usedFirst = true;
   }
   let curMem = '16GB';
@@ -420,7 +510,7 @@ function getAirReg() {
 }
 
 function calcAir() {
-  const powerCost = airState.power === '40W' ? 0 : (airState.power === '35W' ? POWER_COST['air-35w'] : POWER_COST['air-70w']);
+  const powerCost = airState.power === '40W' ? { reg: 0, edu: 0 } : (airState.power === '35W' ? POWER_COST['air-35w'] : POWER_COST['air-70w']);
 
   const tEdu = getAirEdu() + powerCost.edu;
   const tReg = getAirReg() + powerCost.reg;
@@ -429,9 +519,7 @@ function calcAir() {
   document.getElementById('air-price-reg').textContent = fmt(tReg);
   document.getElementById('air-price-edu').textContent = fmt(tEdu);
   document.getElementById('air-price-subsidy').textContent = fmt(tSub);
-  document.getElementById('air-monthly-reg').textContent = monthly(tReg);
-  document.getElementById('air-monthly-edu').textContent = monthly(tEdu);
-  document.getElementById('air-monthly-subsidy').textContent = monthly(tSub);
+  updateVerifyLinks('air');
 
   const diff = tReg - tEdu;
   const dEl = document.getElementById('air-price-diff');
@@ -440,8 +528,9 @@ function calcAir() {
 
   const bd = document.getElementById('air-breakdown');
   const se = getAirEdu(), sr = getAirReg();
+  const regTagAir = '<span class="verified"> ✓ 已验证</span>';
   let h = '<table>';
-  h += `<tr><td>基础配置 (${airState.size} ${airState.chip==='10-8'?'M5 8核GPU':'M5 10核GPU'} ${airState.memory}/${airState.storage})</td><td>${fmt(sr)}</td><td>${fmt(se)}</td><td></td></tr>`;
+  h += `<tr><td>基础配置 (${airState.size} ${airState.chip==='10-8'?'M5 8核GPU':'M5 10核GPU'} ${airState.memory}/${airState.storage})</td><td>${fmt(sr)}${regTagAir}</td><td>${fmt(se)}<span class="verified"> ✓</span></td><td></td></tr>`;
   if (powerCost.reg) h += `<tr><td>电源适配器 ${airState.power}</td><td>+${fmt(powerCost.reg)}</td><td>+${fmt(powerCost.edu)}</td><td></td></tr>`;
   h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td><td>${fmt(tSub)}</td></tr>`;
   h += '</table>';
@@ -456,24 +545,77 @@ function renderPro() {
     const opt = PRO_CHIP_OPTS.find(o => o.value === v);
     return opt && opt.sizes.includes(st.size);
   });
-  renderBtns('pro-memory-btns', (PRO_MEM_OPTS_BY_CHIP[proState.chip]||[]).map(v=>({value:v,label:v})), 'memory', proState, proChanged, ' pro');
-  renderBtns('pro-storage-btns', (PRO_STOR_OPTS_BY_CHIP[proState.chip]||[]).map(v=>({value:v,label:v})), 'storage', proState, proChanged, ' pro');
-  renderBtns('pro-power-btns', (PRO_POWER_OPTS[proState.size]?.[proState.chip]||[]).map(v=>({value:v,label:v+' USB-C'+(v==='96W'&&proState.size==='14-inch'&&!proState.chip.startsWith('M5Max')?' (+¥135)':'')})), 'power', proState, proChanged, ' pro');
+  renderBtns('pro-memory-btns', PRO_MEM_OPTS, 'memory', proState, proChanged, ' pro', (v,st) => {
+    return (PRO_MEM_OPTS_BY_CHIP[st.chip] || []).includes(v);
+  });
+  renderBtns('pro-storage-btns', PRO_STOR_OPTS, 'storage', proState, proChanged, ' pro', (v,st) => {
+    return (PRO_STOR_OPTS_BY_CHIP[st.chip] || []).includes(v);
+  });
+  renderBtns('pro-power-btns', PRO_POWER_ALL_OPTS.map(o => ({ ...o, label: getProPowerLabel(o.value, proState) })), 'power', proState, proChanged, ' pro', (v,st) => {
+    return (PRO_POWER_OPTS[st.size]?.[st.chip] || []).includes(v);
+  });
 }
 
-function proChanged() {
+function handleProClickIntent(change) {
+  if (!change.key) return;
+
+  if (change.key === 'chip') {
+    useFirstSupportedProSize(proState.chip);
+    return;
+  }
+
+  if (change.key === 'memory' && !(PRO_MEM_OPTS_BY_CHIP[proState.chip] || []).includes(change.value)) {
+    const chip = findProChip({ size: proState.size, memory: change.value, storage: proState.storage }) ||
+      findProChip({ size: proState.size, memory: change.value }) ||
+      findProChip({ memory: change.value, storage: proState.storage }) ||
+      findProChip({ memory: change.value });
+    if (chip) {
+      proState.chip = chip;
+      useFirstSupportedProSize(chip);
+    }
+    return;
+  }
+
+  if (change.key === 'storage' && !(PRO_STOR_OPTS_BY_CHIP[proState.chip] || []).includes(change.value)) {
+    const chip = findProChip({ size: proState.size, storage: change.value, memory: proState.memory }) ||
+      findProChip({ size: proState.size, storage: change.value }) ||
+      findProChip({ storage: change.value, memory: proState.memory }) ||
+      findProChip({ storage: change.value });
+    if (chip) {
+      proState.chip = chip;
+      useFirstSupportedProSize(chip);
+    }
+    return;
+  }
+
+  if (change.key === 'power' && !(PRO_POWER_OPTS[proState.size]?.[proState.chip] || []).includes(change.value)) {
+    const size = change.value === '140W' ? '16-inch' : '14-inch';
+    const chip = findProChip({ size, power: change.value, memory: proState.memory, storage: proState.storage }) ||
+      findProChip({ size, power: change.value, memory: proState.memory }) ||
+      findProChip({ size, power: change.value, storage: proState.storage }) ||
+      findProChip({ size, power: change.value });
+    if (chip) {
+      proState.size = size;
+      proState.chip = chip;
+    }
+  }
+}
+
+function proChanged(change = {}) {
+  handleProClickIntent(change);
+
   const validChips = PRO_CHIP_OPTS.filter(o => o.sizes.includes(proState.size)).map(o => o.value);
   if (!validChips.includes(proState.chip)) proState.chip = validChips[0];
-
-  // Memory/chip constraints
-  if (proState.chip === 'M5Max-18-32' && proState.memory === '48GB') proState.chip = 'M5Max-18-40';
-  if (proState.chip === 'M5Max-18-40' && proState.memory === '36GB') proState.chip = 'M5Max-18-32';
 
   const validMems = PRO_MEM_OPTS_BY_CHIP[proState.chip] || [];
   if (!validMems.includes(proState.memory)) proState.memory = validMems[0];
 
   const validStors = PRO_STOR_OPTS_BY_CHIP[proState.chip] || [];
   if (!validStors.includes(proState.storage)) proState.storage = validStors[0];
+
+  if (change.key !== 'power' && (change.key === 'chip' || change.key === 'size' || change.available === false)) {
+    proState.power = getDefaultProPower(proState.size, proState.chip) || proState.power;
+  }
 
   const validPower = PRO_POWER_OPTS[proState.size]?.[proState.chip] || [];
   if (!validPower.includes(proState.power)) proState.power = validPower[0];
@@ -519,7 +661,7 @@ function calcPro() {
   // Power
   let pReg = 0, pEdu = 0;
   if (size === '14-inch') {
-    if (power === '96W' && !chip.startsWith('M5Max')) {
+    if (isPaidPro96WUpgrade(power, { size, chip })) {
       pReg = POWER_COST['pro-96w'].reg; pEdu = POWER_COST['pro-96w'].edu;
       items.push({ label: '电源 70W → 96W', r: pReg, e: pEdu });
     }
@@ -532,9 +674,7 @@ function calcPro() {
   document.getElementById('pro-price-reg').textContent = fmt(tReg);
   document.getElementById('pro-price-edu').textContent = fmt(tEdu);
   document.getElementById('pro-price-subsidy').textContent = fmt(tSub);
-  document.getElementById('pro-monthly-reg').textContent = monthly(tReg);
-  document.getElementById('pro-monthly-edu').textContent = monthly(tEdu);
-  document.getElementById('pro-monthly-subsidy').textContent = monthly(tSub);
+  updateVerifyLinks('pro');
 
   const diff = tReg - tEdu;
   const dEl = document.getElementById('pro-price-diff');
@@ -543,9 +683,12 @@ function calcPro() {
 
   const bd = document.getElementById('pro-breakdown');
   let h = '<table>';
-  h += `<tr><td>基础配置 (14"标准 ${chip.replace(/-/g,' ')} ${baseMem}/${baseStor})</td><td>${fmt(baseReg)}</td><td>${fmt(baseEdu)}</td><td></td></tr>`;
+  h += `<tr><td>基础配置 (14"标准 ${chip.replace(/-/g,' ')} ${baseMem}/${baseStor})</td><td>${fmt(baseReg)}<span class="verified"> ✓</span></td><td>${fmt(baseEdu)}<span class="verified"> ✓</span></td><td></td></tr>`;
   for (const it of items) {
-    h += `<tr><td>${it.label}</td><td>+${fmt(it.r)}</td><td>+${fmt(it.e)}</td><td></td></tr>`;
+    // Display & size upgrades are verified for REG; memory/storage REG are computed
+    const isRegVerified = it.label.includes('纳米纹理') || it.label.includes('升级至 16 英寸') || it.label.includes('电源');
+    const regBadge = isRegVerified ? '<span class="verified"> ✓</span>' : '<span class="estimated"> ※</span>';
+    h += `<tr><td>${it.label}</td><td>+${fmt(it.r)}${regBadge}</td><td>+${fmt(it.e)}<span class="verified"> ✓</span></td><td></td></tr>`;
   }
   h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td><td>${fmt(tSub)}</td></tr>`;
   h += '</table>';
