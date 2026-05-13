@@ -34,15 +34,6 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 .price-amount { font-size: 40px; font-weight: 700; letter-spacing: -1.5px; }
 .price-box.edu .price-amount { color: #0071e3; }
 .price-box.subsidy .price-amount { color: #1a8a3f; }
-.price-diff { font-size: 15px; font-weight: 500; margin-top: 12px; text-align: center; }
-.price-diff.cheaper { color: #34c759; }
-.breakdown { margin-top: 16px; font-size: 13px; color: #86868b; background: #fbfbfd; border-radius: 10px; padding: 12px 16px; }
-.breakdown table { width: 100%; border-collapse: collapse; }
-.breakdown td { padding: 4px 0; }
-.breakdown td:first-child { text-align: left; }
-.breakdown td:nth-child(2), .breakdown td:nth-child(3), .breakdown td:nth-child(4) { text-align: right; font-family: "SF Mono","Consolas",monospace; font-size: 13px; font-weight: 500; }
-.breakdown tr.total { font-weight: 600; color: #1d1d1f; border-top: 1px solid #d2d2d7; }
-.breakdown tr.total td { padding-top: 8px; }
 .verified { font-size: 11px; color: #34c759; margin-left: 4px; }
 .estimated { font-size: 11px; color: #ff9f0a; margin-left: 4px; }
 .note { font-size: 12px; color: #86868b; margin-top: 24px; text-align: center; line-height: 1.6; }
@@ -50,6 +41,16 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
 	.verify-link:hover { background: #0071e3; color: #fff; }
 	.verify-link.pro-verify { color: #ff6b00; border-color: #ff6b00; }
 	.verify-link.pro-verify:hover { background: #ff6b00; color: #fff; }
+	@media (max-width: 600px) {
+	  body { padding: 12px; }
+	  h1 { font-size: 22px; }
+	  .card { padding: 16px; border-radius: 12px; }
+	  .card-title { font-size: 16px; }
+	  .option-btn { padding: 10px 14px; font-size: 13px; }
+	  .price-display { grid-template-columns: 1fr; gap: 8px; }
+	  .price-box { padding: 14px; }
+	  .price-amount { font-size: 28px; }
+	}
 </style>
 </head>
 <body>
@@ -70,8 +71,6 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
     <div class="price-box edu"><div class="price-label">教育价格</div><div class="price-amount" id="air-price-edu">¥--</div><a class="verify-link" id="air-verify-edu" href="#" target="_blank" style="display:none">验证价格 ↗</a></div>
     <div class="price-box subsidy"><div class="price-label">国补到手价</div><div class="price-amount" id="air-price-subsidy">¥--</div></div>
   </div>
-  <div class="price-diff" id="air-price-diff"></div>
-  <div class="breakdown" id="air-breakdown"></div>
 </div>
 
 <!-- ==================== PRO ==================== -->
@@ -88,8 +87,6 @@ h1 { font-size: 28px; font-weight: 600; text-align: center; margin-bottom: 8px; 
     <div class="price-box edu"><div class="price-label">教育价格</div><div class="price-amount" id="pro-price-edu">¥--</div><a class="verify-link pro-verify" id="pro-verify-edu" href="#" target="_blank" style="display:none">验证价格 ↗</a></div>
     <div class="price-box subsidy"><div class="price-label">国补到手价</div><div class="price-amount" id="pro-price-subsidy">¥--</div></div>
   </div>
-  <div class="price-diff" id="pro-price-diff"></div>
-  <div class="breakdown" id="pro-breakdown"></div>
 </div>
 
 <p class="note">价格单位：人民币（RMB）<br>教育价格 (EDU)：所有教育价格均来自 apple.com.cn/cn-edu 配置页面，已逐一验证。<br>普通价格 (REG)：Air 全部 25 个配置已从 apple.com.cn 逐一验证。Pro 所有配置和升级价格已从 apple.com.cn 验证（8 个芯片/尺寸组合，含内存、存储、显示屏、尺寸升级）。<br>国补规则：教育价 &lt; ¥10,000 打85折 · 教育价 ≥ ¥10,000 减¥1,500 · 四舍五入到元</p>
@@ -519,21 +516,6 @@ function calcAir() {
   document.getElementById('air-price-edu').textContent = fmt(tEdu);
   document.getElementById('air-price-subsidy').textContent = fmt(tSub);
   updateVerifyLinks('air');
-
-  const diff = tReg - tEdu;
-  const dEl = document.getElementById('air-price-diff');
-  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）· 国补再省 <strong>${fmt(tEdu - tSub)}</strong>`;
-  dEl.className = 'price-diff cheaper';
-
-  const bd = document.getElementById('air-breakdown');
-  const se = getAirEdu(), sr = getAirReg();
-  const regTagAir = '<span class="verified"> ✓ 已验证</span>';
-  let h = '<table>';
-  h += `<tr><td>基础配置 (${airState.size} ${airState.chip==='10-8'?'M5 8核GPU':'M5 10核GPU'} ${airState.memory}/${airState.storage})</td><td>${fmt(sr)}${regTagAir}</td><td>${fmt(se)}<span class="verified"> ✓</span></td><td></td></tr>`;
-  if (powerCost.reg) h += `<tr><td>电源适配器 ${airState.power}</td><td>+${fmt(powerCost.reg)}</td><td>+${fmt(powerCost.edu)}</td><td></td></tr>`;
-  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td><td>${fmt(tSub)}</td></tr>`;
-  h += '</table>';
-  bd.innerHTML = h;
 }
 
 // ==================== PRO ====================
@@ -631,12 +613,10 @@ function calcPro() {
   const baseStor = PRO_BASE_STOR[chip];
 
   let edu = baseEdu, reg = baseReg;
-  const items = [];
 
   // Display upgrade
   if (display === 'Nano-texture') {
     edu += DISPLAY_UPGRADE.edu; reg += DISPLAY_UPGRADE.reg;
-    items.push({ label: '纳米纹理显示屏', r: DISPLAY_UPGRADE.reg, e: DISPLAY_UPGRADE.edu });
   }
 
   // Size upgrade
@@ -644,26 +624,20 @@ function calcPro() {
     const sr = SIZE_UPGRADE_REG[chip] || 2000;
     const se = SIZE_UPGRADE_EDU[chip] || 2000;
     edu += se; reg += sr;
-    items.push({ label: '升级至 16 英寸', r: sr, e: se });
   }
 
   // Memory
   const mReg = sumSteps(MEM_EDU_STEPS[chip].map(s=>({...s,r:Math.round(s.e*MUL)})), baseMem, memory, 'reg');
   const mEdu = sumSteps(MEM_EDU_STEPS[chip], baseMem, memory, 'edu');
-  if (mReg || mEdu) items.push({ label: `内存 ${baseMem} → ${memory}`, r: mReg, e: mEdu });
 
   // Storage
   const sReg = sumSteps(STOR_EDU_STEPS['Pro'].map(s=>({...s,r:Math.round(s.e*MUL)})), baseStor, storage, 'reg');
   const sEdu = sumSteps(STOR_EDU_STEPS['Pro'], baseStor, storage, 'edu');
-  if (sReg || sEdu) items.push({ label: `硬盘 ${baseStor} → ${storage}`, r: sReg, e: sEdu });
 
   // Power
   let pReg = 0, pEdu = 0;
-  if (size === '14-inch') {
-    if (isPaidPro96WUpgrade(power, { size, chip })) {
-      pReg = POWER_COST['pro-96w'].reg; pEdu = POWER_COST['pro-96w'].edu;
-      items.push({ label: '电源 70W → 96W', r: pReg, e: pEdu });
-    }
+  if (size === '14-inch' && isPaidPro96WUpgrade(power, { size, chip })) {
+    pReg = POWER_COST['pro-96w'].reg; pEdu = POWER_COST['pro-96w'].edu;
   }
 
   const tReg = reg + mReg + sReg + pReg;
@@ -674,24 +648,6 @@ function calcPro() {
   document.getElementById('pro-price-edu').textContent = fmt(tEdu);
   document.getElementById('pro-price-subsidy').textContent = fmt(tSub);
   updateVerifyLinks('pro');
-
-  const diff = tReg - tEdu;
-  const dEl = document.getElementById('pro-price-diff');
-  dEl.innerHTML = `教育优惠节省 <strong>${fmt(diff)}</strong>（约 ${Math.round(diff/tReg*100)}%）· 国补再省 <strong>${fmt(tEdu - tSub)}</strong>`;
-  dEl.className = 'price-diff cheaper';
-
-  const bd = document.getElementById('pro-breakdown');
-  let h = '<table>';
-  h += `<tr><td>基础配置 (14"标准 ${chip.replace(/-/g,' ')} ${baseMem}/${baseStor})</td><td>${fmt(baseReg)}<span class="verified"> ✓</span></td><td>${fmt(baseEdu)}<span class="verified"> ✓</span></td><td></td></tr>`;
-  for (const it of items) {
-    // Display & size upgrades are verified for REG; memory/storage REG are computed
-    const isRegVerified = it.label.includes('纳米纹理') || it.label.includes('升级至 16 英寸') || it.label.includes('电源');
-    const regBadge = isRegVerified ? '<span class="verified"> ✓</span>' : '<span class="estimated"> ※</span>';
-    h += `<tr><td>${it.label}</td><td>+${fmt(it.r)}${regBadge}</td><td>+${fmt(it.e)}<span class="verified"> ✓</span></td><td></td></tr>`;
-  }
-  h += `<tr class="total"><td>总计</td><td>${fmt(tReg)}</td><td>${fmt(tEdu)}</td><td>${fmt(tSub)}</td></tr>`;
-  h += '</table>';
-  bd.innerHTML = h;
 }
 
 // ==================== INIT ====================
